@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace MBsoft\FileGallery\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class FileGalleryCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'file-gallery';
 
     public $description = 'My command';
 
