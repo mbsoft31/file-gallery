@@ -2,9 +2,9 @@
 
 namespace MBsoft\FileGallery;
 
+use MBsoft\FileGallery\Commands\FileGalleryCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use MBsoft\FileGallery\Commands\FileGalleryCommand;
 
 class FileGalleryServiceProvider extends PackageServiceProvider
 {

@@ -3,8 +3,8 @@
 namespace MBsoft\FileGallery\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use MBsoft\FileGallery\FileGalleryServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
