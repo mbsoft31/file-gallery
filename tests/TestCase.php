@@ -1,10 +1,10 @@
 <?php
 
-namespace Mouadh Bekhouche\FileGallery\Tests;
+namespace MBsoft\FileGallery\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Mouadh Bekhouche\FileGallery\FileGalleryServiceProvider;
+use MBsoft\FileGallery\FileGalleryServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Mouadh Bekhouche\\FileGallery\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'MBsoft\\FileGallery\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
