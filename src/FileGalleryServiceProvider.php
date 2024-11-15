@@ -8,6 +8,8 @@ use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 use MBsoft\FileGallery\Drivers\CsvFileDatabaseDriver;
 use MBsoft\FileGallery\Drivers\JsonFileDatabaseDriver;
 use MBsoft\FileGallery\Drivers\SqliteDatabaseDriver;
+use MBsoft\FileGallery\Services\GalleryConfigService;
+use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -15,9 +17,31 @@ class FileGalleryServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
+        $package
+            ->name('file-gallery')
+            ->hasConfigFile('file-gallery')
+            ->hasViews()
+            ->hasMigration('create_file_gallery_table')
+            ->hasCommand(FileGalleryCommand::class);
+    }
+
+    /**
+     * @throws InvalidPackage
+     */
+    public function register(): void
+    {
+        parent::register();
+
+        // Bind GalleryConfigService
+        $this->app->singleton(GalleryConfigService::class, function ($app) {
+            return new GalleryConfigService(config('file-gallery'));
+        });
+
+        // Register DatabaseHandlerInterface binding
         $this->app->singleton(DatabaseHandlerInterface::class, function ($app) {
-            // Choose driver based on configuration or explicitly
-            $driver = config('file-gallery.driver', 'sqlite'); // 'sqlite' is default
+            /** @var GalleryConfigService $configService */
+            $configService = $app->make(GalleryConfigService::class);
+            $driver = $configService->get('database.provider', 'sqlite');
 
             return match ($driver) {
                 'json' => new JsonFileDatabaseDriver(storage_path('file_gallery.json')),
@@ -26,21 +50,13 @@ class FileGalleryServiceProvider extends PackageServiceProvider
             };
         });
 
+        // Register ImageManager binding
         $this->app->singleton(ImageManager::class, function ($app) {
-            $current = config('file-gallery.image.driver', 'gd'); // Default to 'gd' if not set
-            $driver = match ($current) {
-                'imagick' => \Intervention\Image\Drivers\Imagick\Driver::class,
-                default => \Intervention\Image\Drivers\Gd\Driver::class,
-            };
+            /** @var GalleryConfigService $configService */
+            $configService = $app->make(GalleryConfigService::class);
+            $driver = $configService->get('image.driver', 'gd');
 
-            return new ImageManager(driver: $driver);
+            return new ImageManager($driver);
         });
-
-        $package
-            ->name('file-gallery')
-            ->hasConfigFile(configFileName: 'file-gallery')
-            ->hasViews()
-            ->hasMigration(migrationFileName: 'create_file_gallery_table')
-            ->hasCommand(commandClassName: FileGalleryCommand::class);
     }
 }

@@ -7,17 +7,22 @@ use Illuminate\Http\UploadedFile;
 use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
+use MBsoft\FileGallery\Services\GalleryConfigService;
 use MBsoft\FileGallery\Traits\ImageOperationsTrait;
 
 class FileGallery
 {
     use ImageOperationsTrait;
 
+    protected GalleryConfigService $configService;
+
     public function __construct(
+        GalleryConfigService $configService,
         protected FileStorageHandlerInterface $fileStorageHandler,
         protected ?DatabaseHandlerInterface $databaseHandler = null,
-        protected Config $config = new Config
-    ) {}
+    ) {
+        $this->configService = $configService;
+    }
 
     /**
      * @throws BindingResolutionException
@@ -26,7 +31,7 @@ class FileGallery
     {
         $this->initializeImageManager();
 
-        if ($this->config->database && $this->databaseHandler) {
+        if ($this->configService->usesDatabase() && $this->databaseHandler) {
             $this->configureDatabase();
         } else {
             $this->configureFileStorage();
@@ -37,14 +42,12 @@ class FileGallery
 
     private function configureDatabase(): void
     {
-        // Database configuration logic handled by DatabaseHandlerInterface
         $this->databaseHandler->initialize();
     }
 
     private function configureFileStorage(): void
     {
-        // File storage configuration handled by FileStorageHandlerInterface
-        $this->fileStorageHandler->listFiles($this->config->disk_folder); // Example call to ensure folder exists
+        $this->fileStorageHandler->listFiles($this->configService->get('disk_folder', 'gallery'));
     }
 
     /**
@@ -52,7 +55,6 @@ class FileGallery
      */
     public function storeFile(UploadedFile $file, string $path = ''): array
     {
-        // Validate and store the file using FileStorageHandlerInterface
         return $this->fileStorageHandler->storeFile($file, $path);
     }
 

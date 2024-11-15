@@ -40,11 +40,75 @@ enum FileExtension: string
     }
 
     /**
+     * Returns an array of image file extensions as strings.
+     */
+    public static function getImageExtensions(): array
+    {
+        return [
+            self::JPG->value,
+            self::JPEG->value,
+            self::PNG->value,
+            self::GIF->value,
+            self::BMP->value,
+            self::SVG->value,
+            self::WEBP->value,
+        ];
+    }
+
+    /**
+     * Returns an array of document file extensions as strings.
+     */
+    public static function getDocumentExtensions(): array
+    {
+        return [
+            self::PDF->value,
+            self::DOC->value,
+            self::DOCX->value,
+            self::TXT->value,
+        ];
+    }
+
+    /**
+     * Returns an array of audio file extensions as strings.
+     */
+    public static function getAudioExtensions(): array
+    {
+        return [
+            self::MP3->value,
+            self::WAV->value,
+        ];
+    }
+
+    /**
+     * Returns an array of video file extensions as strings.
+     */
+    public static function getVideoExtensions(): array
+    {
+        return [
+            self::MP4->value,
+            self::AVI->value,
+        ];
+    }
+
+    /**
+     * Returns an array of archive file extensions as strings.
+     */
+    public static function getArchiveExtensions(): array
+    {
+        return [
+            self::ZIP->value,
+            self::TAR->value,
+            self::GZ->value,
+            self::RAR->value,
+        ];
+    }
+
+    /**
      * Checks if a given extension is a valid case of FileExtension enum.
      */
     public static function isValidExtension(string $extension): bool
     {
-        return in_array($extension, self::getAllExtensions(), true);
+        return in_array(strtolower($extension), self::getAllExtensions(), true);
     }
 
     /**

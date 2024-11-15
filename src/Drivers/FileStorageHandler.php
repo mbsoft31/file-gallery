@@ -17,7 +17,7 @@ class FileStorageHandler implements FileStorageHandlerInterface
     protected string $diskFolder;
 
     public function __construct(
-        protected array $allowedExtensions = [], // Will use FileExtension enum values if not specified
+        protected array $allowedExtensions = [],
         string $disk = 'public',
         string $diskFolder = 'file-gallery'
     ) {
