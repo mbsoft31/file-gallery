@@ -20,8 +20,14 @@ class SqliteDatabaseDriver implements DatabaseHandlerInterface
         if (! Schema::hasTable($this->tableName)) {
             Schema::create($this->tableName, function ($table) {
                 $table->id();
+                $table->uuid('uuid')->unique();
+                $table->string('original_name');
                 $table->string('filename');
                 $table->string('path');
+                $table->string('extension');
+                $table->unsignedBigInteger('size');
+                $table->string('disk')->default('public');
+                $table->string('mime_type')->nullable();
                 $table->timestamps();
             });
         }

@@ -17,6 +17,7 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
     public function initialize(): void
     {
         if (! file_exists($this->filePath)) {
+            // Initialize empty JSON array if the file doesn't exist
             file_put_contents($this->filePath, json_encode([]));
         }
     }
@@ -33,15 +34,19 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
 
     public function getColumns(): array
     {
-        return ['id', 'filename', 'path', 'created_at', 'updated_at'];
+        return ['id', 'uuid', 'original_name', 'filename', 'path', 'extension', 'size', 'disk', 'mime_type', 'created_at', 'updated_at'];
     }
 
     public function addFile(array $fileData): bool
     {
-        $data = $this->getAllFiles();
-        $data[] = $fileData;
+        // Ensure the datetime fields are in proper format
+        $fileData['created_at'] = $fileData['created_at']->toISOString();
+        $fileData['updated_at'] = $fileData['updated_at']->toISOString();
 
-        return file_put_contents($this->filePath, json_encode($data)) !== false;
+        $data = $this->getAllFiles();
+        $data[] = $fileData; // Add new file
+
+        return file_put_contents($this->filePath, json_encode($data, JSON_PRETTY_PRINT)) !== false;
     }
 
     public function getFileRow(string $identifier): ?array
@@ -53,14 +58,14 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
             }
         }
 
-        return null;
+        return null; // Return null if not found
     }
 
     public function getAllFiles(): array
     {
         $data = file_get_contents($this->filePath);
 
-        return json_decode($data, true) ?: [];
+        return json_decode($data, true) ?: []; // Return empty array if JSON is invalid
     }
 
     public function deleteFile(string $identifier): bool
@@ -68,9 +73,9 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
         $files = $this->getAllFiles();
         $updatedFiles = array_filter($files, fn ($file) => $file['id'] != $identifier);
 
-        // Re-index the array to prevent gaps in JSON file after filtering
+        // Re-index the array to prevent gaps in the JSON file after filtering
         $updatedFiles = array_values($updatedFiles);
 
-        return file_put_contents($this->filePath, json_encode($updatedFiles)) !== false;
+        return file_put_contents($this->filePath, json_encode($updatedFiles, JSON_PRETTY_PRINT)) !== false;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace MBsoft\FileGallery\Drivers;
 
+use Exception;
 use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 
 class CsvFileDatabaseDriver implements DatabaseHandlerInterface
@@ -11,15 +12,6 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
     public function __construct(string $filePath)
     {
         $this->filePath = $filePath;
-    }
-
-    public function initialize(): void
-    {
-        if (! file_exists($this->filePath)) {
-            // Create a CSV file with headers if it doesn't exist
-            $headers = ['id', 'filename', 'path', 'created_at', 'updated_at'];
-            file_put_contents($this->filePath, implode(',', $headers).PHP_EOL);
-        }
     }
 
     public function getDatabaseDriver(): string
@@ -32,20 +24,113 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
         return 'file_gallery'; // Not applicable for CSV, but keeping for consistency
     }
 
-    public function addFile(array $fileData): bool
+    public function getColumns(): array
     {
-        $fileData['created_at'] = $fileData['created_at']->toISOString();
-        $fileData['updated_at'] = $fileData['updated_at']->toISOString();
-        $row = implode(',', $fileData).PHP_EOL;
-
-        return file_put_contents($this->filePath, $row, FILE_APPEND) !== false;
+        return ['id', 'uuid', 'original_name', 'filename', 'path', 'extension', 'size', 'disk', 'mime_type', 'created_at', 'updated_at'];
     }
 
+    public function initialize(): void
+    {
+        if (! file_exists($this->filePath)) {
+            // Create a CSV file with headers if it doesn't exist
+            $headers = $this->getColumns();
+            $file = fopen($this->filePath, 'w');
+            fputcsv($file, $headers);  // Write header row
+            fclose($file);
+        }
+    }
+
+    public function addFile(array $fileData): bool
+    {
+        // Ensure that the necessary fields are present and properly formatted
+        $fileData['created_at'] = $fileData['created_at']->toISOString();
+        $fileData['updated_at'] = $fileData['updated_at']->toISOString();
+        $fileData['id'] = (string) $fileData['id'];  // Ensure ID is a string (to match with CSV format)
+
+        // Open the CSV file and append the data
+        $file = fopen($this->filePath, 'a');
+        if ($file) {
+            // Write the row as an array
+            fputcsv($file, $fileData);
+            fclose($file);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getAllFiles(): array
+    {
+        $rows = [];
+        $file = fopen($this->filePath, 'r');
+        if ($file) {
+            $header = fgetcsv($file);  // Read the header
+            while (($data = fgetcsv($file)) !== false) {
+                $row = array_combine($header, $data);  // Combine header with row data
+                $rows[] = $row;
+            }
+            fclose($file);
+        }
+
+        return $rows;
+    }
+
+    public function deleteFile(int|string $identifier): bool
+    {
+        $rows = [];
+        $fileFound = false;
+
+        // Read the existing CSV data
+        $file = fopen($this->filePath, 'r');
+        if ($file) {
+            $header = fgetcsv($file);  // Read the header row
+            $rows[] = $header;  // Keep the header row
+
+            while (($data = fgetcsv($file)) !== false) {
+                $row = array_combine($header, $data);
+                if ($row['id'] == $identifier) {
+                    $fileFound = true;  // File found, skip it
+
+                    continue;
+                }
+                $rows[] = $row;  // Add the row to the new data
+            }
+            fclose($file);
+
+            // Rewrite the CSV file with the remaining rows
+            $file = fopen($this->filePath, 'w');
+            foreach ($rows as $row) {
+                fputcsv($file, $row);  // Ensure each row is an array
+            }
+            fclose($file);
+        }
+
+        return $fileFound;
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getFileRow(int|string $identifier): ?array
     {
         $file = fopen($this->filePath, 'r');
+        if (! $file) {
+            throw new Exception("Unable to open file for reading: $this->filePath");
+        }
+
         $header = fgetcsv($file); // Get the header row
+        if (! $header) {
+            fclose($file);
+
+            return null; // No headers, return null
+        }
+
         while (($data = fgetcsv($file)) !== false) {
+            if (count($header) !== count($data)) {
+                // Log an error or handle this case (e.g., skip this row)
+                continue;
+            }
             $row = array_combine($header, $data);
             if ($row['id'] == $identifier) {
                 fclose($file);
@@ -58,44 +143,28 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
         return null; // Return null if not found
     }
 
-    public function deleteFile(int|string $identifier): bool
+    /**
+     * @throws Exception
+     */
+    private function writeToFile($data, bool $overwrite = false): bool
     {
-        $rows = [];
-        $fileFound = false;
+        $file = fopen($this->filePath, $overwrite ? 'w' : 'a');
+        if (! $file) {
+            throw new Exception("Unable to open file for writing: $this->filePath");
+        }
 
-        // Read current data
-        $file = fopen($this->filePath, 'r');
-        $header = fgetcsv($file);
-        $rows[] = $header; // Preserve header
-
-        while (($data = fgetcsv($file)) !== false) {
-            $row = array_combine($header, $data);
-            if ($row['id'] == $identifier) {
-                $fileFound = true; // We found the file, do not add to new rows
-
-                continue;
+        if (is_array($data)) {
+            // Writing rows
+            foreach ($data as $row) {
+                fputcsv($file, $row);
             }
-            $rows[] = $row; // Add other rows
+        } else {
+            // Writing a single row (string)
+            fwrite($file, $data);
         }
+
         fclose($file);
 
-        // Write back the rows except the deleted one
-        $file = fopen($this->filePath, 'w');
-        foreach ($rows as $row) {
-            fputcsv($file, $row);
-        }
-        fclose($file);
-
-        return $fileFound; // Return true if a file was deleted
-    }
-
-    public function getColumns(): array
-    {
-        return ['id', 'filename', 'path', 'created_at', 'updated_at'];
-    }
-
-    public function getAllFiles(): array
-    {
-        // TODO: Implement getAllFiles() method.
+        return true;
     }
 }

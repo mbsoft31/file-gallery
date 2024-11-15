@@ -10,8 +10,14 @@ use MBsoft\FileGallery\Drivers\SqliteDatabaseDriver;
 // Helper data for testing
 $fileData = [
     'id' => 1,
+    'uuid' => '1234-1235-4567',
+    'original_name' => 'test_file',
     'filename' => 'test_file.jpg',
     'path' => '/uploads/test_file.jpg',
+    'extension' => 'jpg',
+    'size' => '100025',
+    'disk' => 'public',
+    'mime_type' => '',
     'created_at' => now(),
     'updated_at' => now(),
 ];
