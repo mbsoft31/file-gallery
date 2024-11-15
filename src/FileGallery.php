@@ -9,10 +9,12 @@ use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
 use MBsoft\FileGallery\Services\GalleryConfigService;
 use MBsoft\FileGallery\Traits\ImageOperationsTrait;
+use MBsoft\FileGallery\Traits\PDFOperationsTrait;
 
 class FileGallery
 {
     use ImageOperationsTrait;
+    use PDFOperationsTrait;
 
     protected GalleryConfigService $configService;
 
@@ -88,10 +90,5 @@ class FileGallery
     public function listFiles(string $directory): array
     {
         return $this->fileStorageHandler->listFiles($directory);
-    }
-
-    public function optimizePDF(string $path): void
-    {
-        // PDF optimization logic (if needed)
     }
 }
