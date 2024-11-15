@@ -2,7 +2,6 @@
 
 namespace MBsoft\FileGallery\Drivers;
 
-use Illuminate\Support\Facades\Storage;
 use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 
 class CsvFileDatabaseDriver implements DatabaseHandlerInterface
@@ -16,10 +15,10 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
 
     public function initialize(): void
     {
-        if (!file_exists($this->filePath)) {
+        if (! file_exists($this->filePath)) {
             // Create a CSV file with headers if it doesn't exist
             $headers = ['id', 'filename', 'path', 'created_at', 'updated_at'];
-            file_put_contents($this->filePath, implode(',', $headers) . PHP_EOL);
+            file_put_contents($this->filePath, implode(',', $headers).PHP_EOL);
         }
     }
 
@@ -37,7 +36,8 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
     {
         $fileData['created_at'] = $fileData['created_at']->toISOString();
         $fileData['updated_at'] = $fileData['updated_at']->toISOString();
-        $row = implode(',', $fileData) . PHP_EOL;
+        $row = implode(',', $fileData).PHP_EOL;
+
         return file_put_contents($this->filePath, $row, FILE_APPEND) !== false;
     }
 
@@ -49,10 +49,12 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
             $row = array_combine($header, $data);
             if ($row['id'] == $identifier) {
                 fclose($file);
+
                 return $row; // Return the matched row
             }
         }
         fclose($file);
+
         return null; // Return null if not found
     }
 
@@ -70,6 +72,7 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
             $row = array_combine($header, $data);
             if ($row['id'] == $identifier) {
                 $fileFound = true; // We found the file, do not add to new rows
+
                 continue;
             }
             $rows[] = $row; // Add other rows

@@ -9,8 +9,8 @@ use Intervention\Image\Interfaces\ImageInterface;
 
 trait ImageOperationsTrait
 {
-
     public static string $GD = Drivers\Gd\Driver::class;
+
     public static string $IMAGICK = Drivers\Imagick\Driver::class;
 
     protected ImageManager $imageManager;
@@ -35,35 +35,35 @@ trait ImageOperationsTrait
             ->save($path);
     }
 
-    public function cropImage($path, $width, $height, $x = null, $y = null) : ImageInterface
+    public function cropImage($path, $width, $height, $x = null, $y = null): ImageInterface
     {
         return $this->readImage($path)
             ->crop($width, $height, $x, $y)
             ->save($path);
     }
 
-    public function flipImage($path, $mode = 'h') : ImageInterface
+    public function flipImage($path, $mode = 'h'): ImageInterface
     {
         return $this->readImage($path)
             ->flip($mode)
             ->save($path);
     }
 
-    public function rotateImage($path, $angle) : ImageInterface
+    public function rotateImage($path, $angle): ImageInterface
     {
         return $this->readImage($path)
             ->rotate($angle)
             ->save($path);
     }
 
-    public function grayscaleImage($path) : ImageInterface
+    public function grayscaleImage($path): ImageInterface
     {
         return $this->readImage($path)
             ->greyscale()
             ->save($path);
     }
 
-    public function blurImage($path, $amount = 5) : ImageInterface
+    public function blurImage($path, $amount = 5): ImageInterface
     {
         return $this->readImage($path)
             ->blur($amount)

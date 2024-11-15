@@ -22,7 +22,7 @@ class FileGalleryServiceProvider extends PackageServiceProvider
             return match ($driver) {
                 'json' => new JsonFileDatabaseDriver(storage_path('file_gallery.json')),
                 'csv' => new CsvFileDatabaseDriver(storage_path('file_gallery.csv')),
-                default => new SqliteDatabaseDriver(),
+                default => new SqliteDatabaseDriver,
             };
         });
 
@@ -32,15 +32,15 @@ class FileGalleryServiceProvider extends PackageServiceProvider
                 'imagick' => \Intervention\Image\Drivers\Imagick\Driver::class,
                 default => \Intervention\Image\Drivers\Gd\Driver::class,
             };
+
             return new ImageManager(driver: $driver);
         });
 
         $package
             ->name('file-gallery')
-            ->hasConfigFile(configFileName: "file-gallery")
+            ->hasConfigFile(configFileName: 'file-gallery')
             ->hasViews()
             ->hasMigration(migrationFileName: 'create_file_gallery_table')
             ->hasCommand(commandClassName: FileGalleryCommand::class);
     }
-
 }

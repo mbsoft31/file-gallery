@@ -10,9 +10,10 @@ interface FileStorageHandlerInterface
     /**
      * Store a file and return its storage path.
      *
-     * @param mixed $file The file to be stored.
-     * @param string|null $path Optional specific path.
+     * @param  mixed  $file  The file to be stored.
+     * @param  string|null  $path  Optional specific path.
      * @return array The path where the file is stored.
+     *
      * @throws InvalidFileExtension
      */
     public function storeFile(UploadedFile $file, ?string $path = null): array;
@@ -20,7 +21,7 @@ interface FileStorageHandlerInterface
     /**
      * Retrieve a file by its path.
      *
-     * @param string $path The path to the file.
+     * @param  string  $path  The path to the file.
      * @return mixed The file content or resource.
      */
     public function getFile(string $path): mixed;
@@ -28,7 +29,7 @@ interface FileStorageHandlerInterface
     /**
      * Delete a file by its path.
      *
-     * @param string $path The path to the file to delete.
+     * @param  string  $path  The path to the file to delete.
      * @return bool True on successful deletion, false otherwise.
      */
     public function deleteFile(string $path): bool;
@@ -36,7 +37,7 @@ interface FileStorageHandlerInterface
     /**
      * Check if a file exists at a given path.
      *
-     * @param string $path The path to check.
+     * @param  string  $path  The path to check.
      * @return bool True if the file exists, false otherwise.
      */
     public function fileExists(string $path): bool;
@@ -44,7 +45,7 @@ interface FileStorageHandlerInterface
     /**
      * List files in a directory.
      *
-     * @param string $directory The directory path.
+     * @param  string  $directory  The directory path.
      * @return array An array of file paths.
      */
     public function listFiles(string $directory): array;

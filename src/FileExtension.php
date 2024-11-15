@@ -33,8 +33,6 @@ enum FileExtension: string
 
     /**
      * Returns an array of all possible file extensions as strings.
-     *
-     * @return array
      */
     public static function getAllExtensions(): array
     {
@@ -43,9 +41,6 @@ enum FileExtension: string
 
     /**
      * Checks if a given extension is a valid case of FileExtension enum.
-     *
-     * @param string $extension
-     * @return bool
      */
     public static function isValidExtension(string $extension): bool
     {
@@ -54,9 +49,6 @@ enum FileExtension: string
 
     /**
      * Returns the extension instance for a given string value, if valid.
-     *
-     * @param string $extension
-     * @return FileExtension|null
      */
     public static function fromString(string $extension): ?FileExtension
     {
@@ -65,7 +57,7 @@ enum FileExtension: string
                 return $case;
             }
         }
+
         return null;
     }
 }
-

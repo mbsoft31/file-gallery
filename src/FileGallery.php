@@ -4,8 +4,8 @@ namespace MBsoft\FileGallery;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\UploadedFile;
-use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
 use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
+use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
 use MBsoft\FileGallery\Traits\ImageOperationsTrait;
 
@@ -16,7 +16,7 @@ class FileGallery
     public function __construct(
         protected FileStorageHandlerInterface $fileStorageHandler,
         protected ?DatabaseHandlerInterface $databaseHandler = null,
-        protected Config $config = new Config()
+        protected Config $config = new Config
     ) {}
 
     /**
@@ -31,6 +31,7 @@ class FileGallery
         } else {
             $this->configureFileStorage();
         }
+
         return true;
     }
 
@@ -49,7 +50,7 @@ class FileGallery
     /**
      * @throws InvalidFileExtension
      */
-    public function storeFile(UploadedFile $file, string $path = ""): array
+    public function storeFile(UploadedFile $file, string $path = ''): array
     {
         // Validate and store the file using FileStorageHandlerInterface
         return $this->fileStorageHandler->storeFile($file, $path);

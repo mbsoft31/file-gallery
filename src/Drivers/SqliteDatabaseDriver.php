@@ -2,9 +2,9 @@
 
 namespace MBsoft\FileGallery\Drivers;
 
-use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 
 class SqliteDatabaseDriver implements DatabaseHandlerInterface
 {
@@ -17,7 +17,7 @@ class SqliteDatabaseDriver implements DatabaseHandlerInterface
 
     public function initialize(): void
     {
-        if (!Schema::hasTable($this->tableName)) {
+        if (! Schema::hasTable($this->tableName)) {
             Schema::create($this->tableName, function ($table) {
                 $table->id();
                 $table->string('filename');
@@ -45,7 +45,8 @@ class SqliteDatabaseDriver implements DatabaseHandlerInterface
     public function getFileRow(int|string $identifier): ?array
     {
         $file = DB::table($this->tableName)->where('id', $identifier)->first();
-        return $file ? (array)$file : null;
+
+        return $file ? (array) $file : null;
     }
 
     public function deleteFile(int|string $identifier): bool

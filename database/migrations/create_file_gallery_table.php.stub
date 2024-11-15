@@ -8,11 +8,16 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('file_gallery_table', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
-
-            // add fields
-
+            $table->uuid('uuid')->unique();
+            $table->string('original_name');
+            $table->string('filename');
+            $table->string('path');
+            $table->string('extension');
+            $table->unsignedBigInteger('size');
+            $table->string('disk')->default('public');
+            $table->string('mime_type')->nullable();
             $table->timestamps();
         });
     }

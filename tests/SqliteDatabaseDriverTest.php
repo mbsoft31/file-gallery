@@ -1,11 +1,11 @@
 <?php
 
-use MBsoft\FileGallery\Drivers\SqliteDatabaseDriver;
-use MBsoft\FileGallery\Drivers\JsonFileDatabaseDriver;
-use MBsoft\FileGallery\Drivers\CsvFileDatabaseDriver;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
+use MBsoft\FileGallery\Drivers\CsvFileDatabaseDriver;
+use MBsoft\FileGallery\Drivers\JsonFileDatabaseDriver;
+use MBsoft\FileGallery\Drivers\SqliteDatabaseDriver;
 
 // Helper data for testing
 $fileData = [
@@ -26,14 +26,14 @@ function assertFileExistsInDriver($driver, $fileData): void
 
 // SQLite driver tests
 it('initializes SQLite driver and creates table', function () {
-    $sqliteDriver = new SqliteDatabaseDriver();
+    $sqliteDriver = new SqliteDatabaseDriver;
     $sqliteDriver->initialize();
     expect(Schema::hasTable($sqliteDriver->getTableName()))->toBeTrue();
     DB::table($sqliteDriver->getTableName())->truncate(); // Cleanup after test
 });
 
 it('adds, retrieves, and deletes file in SQLite driver', function () use ($fileData) {
-    $sqliteDriver = new SqliteDatabaseDriver();
+    $sqliteDriver = new SqliteDatabaseDriver;
     $sqliteDriver->initialize();
 
     $addResult = $sqliteDriver->addFile($fileData);
@@ -71,7 +71,6 @@ it('adds, retrieves, and deletes file in JSON driver', function () use ($fileDat
     $fileRowAfterDeletion = $jsonDriver->getFileRow($fileData['id']);
     expect($fileRowAfterDeletion)->toBeNull();
 });
-
 
 // Csv driver tests
 it('initializes CSV driver and creates file if not exists', function () {

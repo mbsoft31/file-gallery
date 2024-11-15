@@ -13,6 +13,7 @@ class FileGalleryCommand extends Command
     public function handle(): int
     {
         $this->info('Listing files...');
+
         return self::SUCCESS;
     }
 }

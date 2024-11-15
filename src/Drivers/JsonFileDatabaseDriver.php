@@ -16,7 +16,7 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
 
     public function initialize(): void
     {
-        if (!file_exists($this->filePath)) {
+        if (! file_exists($this->filePath)) {
             file_put_contents($this->filePath, json_encode([]));
         }
     }
@@ -40,6 +40,7 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
     {
         $data = $this->getAllFiles();
         $data[] = $fileData;
+
         return file_put_contents($this->filePath, json_encode($data)) !== false;
     }
 
@@ -51,19 +52,21 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
                 return $file;
             }
         }
+
         return null;
     }
 
     public function getAllFiles(): array
     {
         $data = file_get_contents($this->filePath);
+
         return json_decode($data, true) ?: [];
     }
 
     public function deleteFile(string $identifier): bool
     {
         $files = $this->getAllFiles();
-        $updatedFiles = array_filter($files, fn($file) => $file['id'] != $identifier);
+        $updatedFiles = array_filter($files, fn ($file) => $file['id'] != $identifier);
 
         // Re-index the array to prevent gaps in JSON file after filtering
         $updatedFiles = array_values($updatedFiles);
