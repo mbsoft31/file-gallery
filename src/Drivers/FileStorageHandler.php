@@ -1,29 +1,39 @@
 <?php
 
-namespace MBsoft\FileGallery\Handlers;
+namespace MBsoft\FileGallery\Drivers;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
+use MBsoft\FileGallery\FileExtension;
 
 class FileStorageHandler implements FileStorageHandlerInterface
 {
+    protected string $disk;
+    protected string $diskFolder;
+
     public function __construct(
-        protected array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'],
-        protected string $disk = "public",
-        protected string $diskFolder = "file-gallery",
-    ) {}
+        protected array $allowedExtensions = [], // Will use FileExtension enum values if not specified
+        string $disk = "public",
+        string $diskFolder = "file-gallery"
+    ) {
+        $this->allowedExtensions = $allowedExtensions ?: FileExtension::getAllExtensions();
+        $this->disk = $disk;
+        $this->diskFolder = $diskFolder;
+    }
 
     /**
      * @throws InvalidFileExtension
      */
     public function validateFile(UploadedFile $file): UploadedFile
     {
-        $extension = $file->getClientOriginalExtension();
-        if (!in_array($extension, $this->allowedExtensions)) {
-            throw new InvalidFileExtension("Invalid file extension: {$extension}");
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // Use the FileExtension enum for validation
+        if (!FileExtension::isValidExtension($extension) || !in_array($extension, $this->allowedExtensions, true)) {
+            throw new InvalidFileExtension("Invalid file extension: $extension");
         }
         return $file;
     }
@@ -35,7 +45,7 @@ class FileStorageHandler implements FileStorageHandlerInterface
     {
         $file = $this->validateFile($file);
         $uuid = Str::uuid()->toString();
-        $extension = $file->getClientOriginalExtension();
+        $extension = strtolower($file->getClientOriginalExtension());
         $filename = $this->getFullFilePath($uuid, $extension, $path);
         $pathOnDisk = $file->storeAs($this->diskFolder, $filename, $this->disk);
 
@@ -52,7 +62,7 @@ class FileStorageHandler implements FileStorageHandlerInterface
     public function getFullFilePath(string $uuid, string $extension, ?string $path = null): string
     {
         $separator = (!$path || str_ends_with($path, DIRECTORY_SEPARATOR)) ? "" : DIRECTORY_SEPARATOR;
-        return "{$path}{$separator}{$uuid}.{$extension}";
+        return "$path$separator$uuid.$extension";
     }
 
     public function getFile(string $path): ?string
