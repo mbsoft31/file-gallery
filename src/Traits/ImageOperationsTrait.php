@@ -3,23 +3,24 @@
 namespace MBsoft\FileGallery\Traits;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Intervention\Image\Drivers;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageInterface;
 
 trait ImageOperationsTrait
 {
 
-    public static string $GD = \Intervention\Image\Drivers\Gd\Driver::class;
-    public static string $IMAGICK = \Intervention\Image\Drivers\Imagick\Driver::class;
+    public static string $GD = Drivers\Gd\Driver::class;
+    public static string $IMAGICK = Drivers\Imagick\Driver::class;
 
     protected ImageManager $imageManager;
 
     /**
      * @throws BindingResolutionException
      */
-    public function initializeImageManager(string $driver): void
+    public function initializeImageManager(): void
     {
-        $this->imageManager = app()->make(ImageManager::class, new $driver());
+        $this->imageManager = app()->make(ImageManager::class);
     }
 
     public function readImage(string $filePath): ImageInterface

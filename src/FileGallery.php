@@ -2,33 +2,31 @@
 
 namespace MBsoft\FileGallery;
 
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
+use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
 use MBsoft\FileGallery\Traits\ImageOperationsTrait;
 
-class FileGallery {
-
+class FileGallery
+{
     use ImageOperationsTrait;
 
     public function __construct(
-        public ?Config $config = null,
-    ) {
-        $this->config = $config ?? new Config();
-    }
+        protected FileStorageHandlerInterface $fileStorageHandler,
+        protected ?DatabaseHandlerInterface $databaseHandler = null,
+        protected Config $config = new Config()
+    ) {}
 
     /**
      * @throws BindingResolutionException
      */
-    public function initGallery() : bool {
+    public function initGallery(): bool
+    {
         $this->initializeImageManager();
 
-        if($this->config->database) {
+        if ($this->config->database && $this->databaseHandler) {
             $this->configureDatabase();
         } else {
             $this->configureFileStorage();
@@ -38,44 +36,14 @@ class FileGallery {
 
     private function configureDatabase(): void
     {
-        // Database configuration logic
-        if ($this->config->database_provider === 'sqlite') {
-            config(['database.connections.sqlite.database' => $this->config->database_url]);
-        }
-        if (!Schema::hasTable($this->config->database_table_name)) {
-            Schema::create($this->config->database_table_name, function (Blueprint $table) {
-                $table->id();
-                $table->string('filename');
-                $table->timestamps();
-            });
-        }
+        // Database configuration logic handled by DatabaseHandlerInterface
+        $this->databaseHandler->initialize();
     }
 
     private function configureFileStorage(): void
     {
-        // File storage configuration logic
-        Storage::disk($this->config->disk)->makeDirectory($this->config->disk_folder);
-    }
-
-    /**
-     * @throws InvalidFileExtension
-     */
-    public function validateFile(UploadedFile $file) : UploadedFile
-    {
-        $extension = $file->getClientOriginalExtension();
-        if (!in_array($extension, $this->config->allowed_file_extensions)) {
-            throw new InvalidFileExtension();
-        }
-
-        // more validation
-
-        return $file;
-    }
-
-    public function getFullFilePath($uuid, $extension, $path = "") : string
-    {
-        $path_separator = ( $path == "" && !str_ends_with($path, DIRECTORY_SEPARATOR) ) ? DIRECTORY_SEPARATOR : "";
-        return sprintf("%s%s%s.%s", $path, $path_separator, $uuid, $extension);
+        // File storage configuration handled by FileStorageHandlerInterface
+        $this->fileStorageHandler->listFiles($this->config->disk_folder); // Example call to ensure folder exists
     }
 
     /**
@@ -83,25 +51,44 @@ class FileGallery {
      */
     public function storeFile(UploadedFile $file, string $path = ""): array
     {
-        $file = $this->validateFile($file);
-
-        // generate a random string uuid
-        $uuid = Str::uuid()->toString();
-        $extension = $file->getClientOriginalExtension();
-        $filename = $this->getFullFilePath($uuid, $extension, $path);
-        $path_on_disk = $file->storeAs($this->config->disk_folder, $filename, $this->config->disk);
-
-        return [
-            'uuid' => $uuid,
-            'extension' => $extension,
-            'filename' => $filename,
-            'path' => $path_on_disk,
-            'original_name' => $file->getClientOriginalName(),
-            'size' => $file->getSize(),
-        ];
+        // Validate and store the file using FileStorageHandlerInterface
+        return $this->fileStorageHandler->storeFile($file, $path);
     }
 
-    public function optimizePDF($path) {
-        // Add PDF optimization logic here
+    /**
+     * Retrieve a file's contents using FileStorageHandlerInterface.
+     */
+    public function getFile(string $path): mixed
+    {
+        return $this->fileStorageHandler->getFile($path);
+    }
+
+    /**
+     * Delete a file using FileStorageHandlerInterface.
+     */
+    public function deleteFile(string $path): bool
+    {
+        return $this->fileStorageHandler->deleteFile($path);
+    }
+
+    /**
+     * Check if a file exists using FileStorageHandlerInterface.
+     */
+    public function fileExists(string $path): bool
+    {
+        return $this->fileStorageHandler->fileExists($path);
+    }
+
+    /**
+     * List files in a directory using FileStorageHandlerInterface.
+     */
+    public function listFiles(string $directory): array
+    {
+        return $this->fileStorageHandler->listFiles($directory);
+    }
+
+    public function optimizePDF(string $path): void
+    {
+        // PDF optimization logic (if needed)
     }
 }
