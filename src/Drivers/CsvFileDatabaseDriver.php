@@ -146,9 +146,9 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
     /**
      * @throws Exception
      */
-    private function writeToFile($data, bool $overwrite = false): bool
+    private function writeToFile(array $data): bool
     {
-        $file = fopen($this->filePath, $overwrite ? 'w' : 'a');
+        $file = fopen($this->filePath, false ? 'w' : 'a');
         if (! $file) {
             throw new Exception("Unable to open file for writing: $this->filePath");
         }

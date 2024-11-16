@@ -58,5 +58,15 @@ class FileGalleryServiceProvider extends PackageServiceProvider
 
             return new ImageManager($driver);
         });
+
+        $this->app->bind(\MBsoft\FileGallery\FileGallery::class, function ($app) {
+            $configService = $app->make(GalleryConfigService::class);
+            $driver = $configService->get('database.provider', 'sqlite');
+            return match ($driver) {
+                'json' => new JsonFileDatabaseDriver(storage_path('file_gallery.json')),
+                'csv' => new CsvFileDatabaseDriver(storage_path('file_gallery.csv')),
+                default => new SqliteDatabaseDriver,
+            };
+        });
     }
 }

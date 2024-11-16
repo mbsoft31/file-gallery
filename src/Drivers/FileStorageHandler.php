@@ -43,7 +43,7 @@ class FileStorageHandler implements FileStorageHandlerInterface
     /**
      * @throws InvalidFileExtension
      */
-    public function storeFile(UploadedFile $file, ?string $path = null): array
+    public function storeFile(UploadedFile $file, ?string $path = null): FileModel
     {
         $file = $this->validateFile($file);
         $uuid = Str::uuid()->toString();

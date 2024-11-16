@@ -4,6 +4,7 @@ namespace MBsoft\FileGallery\Contracts;
 
 use Illuminate\Http\UploadedFile;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
+use MBsoft\FileGallery\Models\FileModel;
 
 interface FileStorageHandlerInterface
 {
@@ -16,7 +17,7 @@ interface FileStorageHandlerInterface
      *
      * @throws InvalidFileExtension
      */
-    public function storeFile(UploadedFile $file, ?string $path = null): array;
+    public function storeFile(UploadedFile $file, ?string $path = null): FileModel;
 
     /**
      * Retrieve a file by its path.
