@@ -6,6 +6,7 @@ use Intervention\Image\ImageManager;
 use MBsoft\FileGallery\Commands\FileGalleryCommand;
 use MBsoft\FileGallery\Contracts\DatabaseHandlerInterface;
 use MBsoft\FileGallery\Drivers\CsvFileDatabaseDriver;
+use MBsoft\FileGallery\Drivers\FileStorageHandler;
 use MBsoft\FileGallery\Drivers\JsonFileDatabaseDriver;
 use MBsoft\FileGallery\Drivers\SqliteDatabaseDriver;
 use MBsoft\FileGallery\Services\GalleryConfigService;
@@ -62,11 +63,12 @@ class FileGalleryServiceProvider extends PackageServiceProvider
         $this->app->bind(\MBsoft\FileGallery\FileGallery::class, function ($app) {
             $configService = $app->make(GalleryConfigService::class);
             $driver = $configService->get('database.provider', 'sqlite');
-            return match ($driver) {
+            $db = match ($driver) {
                 'json' => new JsonFileDatabaseDriver(storage_path('file_gallery.json')),
                 'csv' => new CsvFileDatabaseDriver(storage_path('file_gallery.csv')),
                 default => new SqliteDatabaseDriver,
             };
+            return new FileGallery($configService, new FileStorageHandler(), $db);
         });
     }
 }
