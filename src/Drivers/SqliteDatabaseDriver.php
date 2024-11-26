@@ -10,7 +10,9 @@ class SqliteDatabaseDriver implements DatabaseHandlerInterface
 {
     protected string $tableName;
 
-    public function __construct()
+    public function __construct(
+        string $tableName = 'file_gallery'
+    )
     {
         $this->tableName = 'file_gallery';
     }

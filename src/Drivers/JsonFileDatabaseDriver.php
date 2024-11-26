@@ -16,9 +16,15 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
 
     public function initialize(): void
     {
+        $dir = dirname($this->filePath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         if (! file_exists($this->filePath)) {
             // Initialize empty JSON array if the file doesn't exist
-            file_put_contents($this->filePath, json_encode([]));
+            $file = fopen($this->filePath, 'w');
+            fwrite($file, json_encode([], JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES));
+            fclose($file);
         }
     }
 
@@ -34,7 +40,7 @@ class JsonFileDatabaseDriver implements DatabaseHandlerInterface
 
     public function getColumns(): array
     {
-        return ['id', 'uuid', 'original_name', 'filename', 'path', 'extension', 'size', 'disk', 'mime_type', 'created_at', 'updated_at'];
+        return ['uuid', 'original_name', 'filename', 'path', 'extension', 'size', 'disk', 'mime_type', 'created_at', 'updated_at'];
     }
 
     public function addFile(array $fileData): bool

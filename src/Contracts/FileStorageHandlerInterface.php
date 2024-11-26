@@ -2,7 +2,7 @@
 
 namespace MBsoft\FileGallery\Contracts;
 
-use Illuminate\Http\UploadedFile;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
 use MBsoft\FileGallery\Models\FileModel;
 
@@ -17,7 +17,7 @@ interface FileStorageHandlerInterface
      *
      * @throws InvalidFileExtension
      */
-    public function storeFile(UploadedFile $file, ?string $path = null): FileModel;
+    public function storeFile(UploadedFile $file, ?string $path = null): array;
 
     /**
      * Retrieve a file by its path.

@@ -20,7 +20,10 @@
         "illuminate/contracts": "^10.0||^11.0",
         "intervention/image": "^3.9",
         "league/csv": "*",
-        "spatie/laravel-package-tools": "^1.16"
+        "mbsoft31/settings": "^0.0.3",
+        "nette/utils": "^4.0",
+        "spatie/laravel-package-tools": "^1.16",
+        "ext-gd": "*"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -34,7 +37,10 @@
         "psr-4": {
             "MBsoft\\FileGallery\\": "src/",
             "MBsoft\\FileGallery\\Database\\Factories\\": "database/factories/"
-        }
+        },
+        "files": [
+            "src/Helpers/utils.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

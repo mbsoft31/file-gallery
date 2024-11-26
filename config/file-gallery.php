@@ -3,28 +3,45 @@
 // config for MBsoft/FileGallery
 return [
     'database' => [
-        'enabled' => env('FILEGALLERY_DATABASE_ENABLED', false),
-        'provider' => env('FILEGALLERY_DATABASE_PROVIDER', 'sqlite'),
-        'url' => env('FILEGALLERY_DATABASE_URL', 'database/filegallery.sqlite'),
-        'table_name' => env('FILEGALLERY_DATABASE_TABLE_NAME', 'files'),
+        'enabled' => true,
+        'provider' => 'json',
+        'url' => 'database/file_gallery.json',
+        'table_name' => 'files',
     ],
 
-    'disk' => env('FILEGALLERY_DISK', 'public'),
-    'disk_folder' => env('FILEGALLERY_DISK_FOLDER', 'gallery'),
+    "disks" => [
+        'local' => [
+            'driver' => 'local',
+            'root' => storage_dir() . '/app/private',
+            'url' => null,
+            'visibility' => 'private',
+            'permissions' => '0644',
+            'serve' => true,
+            'throw' => false,
+        ],
+
+        'public' => [
+            'driver' => 'local',
+            'root' => storage_dir() . '/app/public',
+            'url' => '/storage',
+            'visibility' => 'public',
+            'permissions' => '0644',
+            'throw' => false,
+        ],
+    ],
+
+    'disk' => 'public',
 
     'allowed_file_extensions' => explode(
         separator: ',',
-        string: env(
-            key: 'FILEGALLERY_ALLOWED_FILE_EXTENSIONS',
-            default: implode(separator: ',', array: array_merge(
-                \MBsoft\FileGallery\FileExtension::getImageExtensions(),
-                \MBsoft\FileGallery\FileExtension::getVideoExtensions(),
-                \MBsoft\FileGallery\FileExtension::getDocumentExtensions(),
-            ))
-        )
+        string: implode(separator: ',', array: array_merge(
+            \MBsoft\FileGallery\Enums\FileExtension::getImageExtensions(),
+            \MBsoft\FileGallery\Enums\FileExtension::getVideoExtensions(),
+            \MBsoft\FileGallery\Enums\FileExtension::getDocumentExtensions(),
+        )),
     ),
 
     'image' => [
-        'driver' => env('FILEGALLERY_IMAGE_DRIVER', \MBsoft\FileGallery\FileGallery::$GD),
+        'driver' => \MBsoft\FileGallery\FileGallery::$GD,
     ],
 ];

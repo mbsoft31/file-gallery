@@ -26,11 +26,15 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
 
     public function getColumns(): array
     {
-        return ['id', 'uuid', 'original_name', 'filename', 'path', 'extension', 'size', 'disk', 'mime_type', 'created_at', 'updated_at'];
+        return ['uuid', 'original_name', 'filename', 'path', 'extension', 'size', 'disk', 'mime_type', 'created_at', 'updated_at'];
     }
 
     public function initialize(): void
     {
+        $dir = dirname($this->filePath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         if (! file_exists($this->filePath)) {
             // Create a CSV file with headers if it doesn't exist
             $headers = $this->getColumns();
@@ -45,11 +49,11 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
         // Ensure that the necessary fields are present and properly formatted
         $fileData['created_at'] = $fileData['created_at']->toISOString();
         $fileData['updated_at'] = $fileData['updated_at']->toISOString();
-        $fileData['id'] = (string) $fileData['id'];  // Ensure ID is a string (to match with CSV format)
 
         // Open the CSV file and append the data
         $file = fopen($this->filePath, 'a');
         if ($file) {
+            dump($fileData);
             // Write the row as an array
             fputcsv($file, $fileData);
             fclose($file);

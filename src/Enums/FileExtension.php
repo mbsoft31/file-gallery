@@ -1,6 +1,6 @@
 <?php
 
-namespace MBsoft\FileGallery;
+namespace MBsoft\FileGallery\Enums;
 
 enum FileExtension: string
 {
@@ -101,6 +101,35 @@ enum FileExtension: string
             self::GZ->value,
             self::RAR->value,
         ];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getMimeType(FileExtension $extension): string
+    {
+        return match ($extension) {
+            self::JPEG => 'image/jpeg',
+            self::PNG => 'image/png',
+            self::GIF => 'image/gif',
+            self::BMP => 'image/bmp',
+            self::SVG => 'image/svg+xml',
+            self::WEBP => 'image/webp',
+
+            self::PDF => 'application/pdf',
+            self::DOC => 'application/msword',
+            self::DOCX => 'application/vnd.ms-excel',
+            self::TXT => 'text/plain',
+            self::MP3 => 'audio/mpeg',
+            self::WAV => 'audio/x-wav',
+            self::MP4 => 'video/mp4',
+            self::AVI => 'video/avi',
+            self::ZIP => 'application/zip',
+            self::TAR => 'application/x-tar',
+            self::GZ => 'application/x-gzip',
+            self::RAR => 'application/x-rar',
+            default => throw new \Exception('Unexpected match value'),
+        };
     }
 
     /**
