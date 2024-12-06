@@ -1,18 +1,32 @@
 <?php
 
 // config for MBsoft/FileGallery
-return [
-    'database' => [
-        'enabled' => true,
-        'provider' => 'json',
-        'url' => 'database/file_gallery.json',
-        'table_name' => 'files',
-    ],
+use MBsoft\FileGallery\Enums\FileExtension;
+use MBsoft\FileGallery\FileGallery;
 
+return [
+    'storage_path' => storage_dir(),
+    "drivers" => [
+        "sqlite" => [
+            "driver" => "sqlite",
+            "path" => 'data/sqlite',
+            "table" => "file_gallery.sqlite",
+        ],
+        "json" => [
+            "driver" => "json",
+            "path" => 'data/json',
+            "table" => "file_gallery.json",
+        ],
+        "csv" => [
+            "driver" => "csv",
+            "path" => 'data/csv',
+            "table" => "file_gallery.csv",
+        ]
+    ],
     "disks" => [
         'local' => [
             'driver' => 'local',
-            'root' => storage_dir() . '/app/private',
+            'root' => 'app/private',
             'url' => null,
             'visibility' => 'private',
             'permissions' => '0644',
@@ -22,7 +36,7 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_dir() . '/app/public',
+            'root' => 'app/public',
             'url' => '/storage',
             'visibility' => 'public',
             'permissions' => '0644',
@@ -30,18 +44,19 @@ return [
         ],
     ],
 
+    'database' => "csv",
     'disk' => 'public',
 
     'allowed_file_extensions' => explode(
         separator: ',',
         string: implode(separator: ',', array: array_merge(
-            \MBsoft\FileGallery\Enums\FileExtension::getImageExtensions(),
-            \MBsoft\FileGallery\Enums\FileExtension::getVideoExtensions(),
-            \MBsoft\FileGallery\Enums\FileExtension::getDocumentExtensions(),
+            FileExtension::getImageExtensions(),
+            FileExtension::getVideoExtensions(),
+            FileExtension::getDocumentExtensions(),
         )),
     ),
 
     'image' => [
-        'driver' => \MBsoft\FileGallery\FileGallery::$GD,
+        'driver' => FileGallery::$GD,
     ],
 ];

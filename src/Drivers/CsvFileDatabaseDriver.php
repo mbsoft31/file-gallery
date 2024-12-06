@@ -53,7 +53,6 @@ class CsvFileDatabaseDriver implements DatabaseHandlerInterface
         // Open the CSV file and append the data
         $file = fopen($this->filePath, 'a');
         if ($file) {
-            dump($fileData);
             // Write the row as an array
             fputcsv($file, $fileData);
             fclose($file);

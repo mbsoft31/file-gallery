@@ -30,5 +30,8 @@ phpstan.neon
 testbench.yaml
 /docs
 /coverage
+/storage/app/public/*
 /storage/app/private/*
+/storage/data/csv/*
+/storage/data/json/*
 /storage/tmp/*
