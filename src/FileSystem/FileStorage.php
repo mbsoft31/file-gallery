@@ -1,81 +1,44 @@
 <?php
 namespace MBsoft\FileGallery\FileSystem;
 
+use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
 use MBsoft\FileGallery\Contracts\FileStorageHandlerInterface;
-use MBsoft\FileGallery\Enums\FileExtension;
-use MBsoft\FileGallery\Exceptions\InvalidFileExtension;
-use MBsoft\FileGallery\Models\FileModel;
 
 class FileStorage implements FileStorageHandlerInterface
 {
-    protected Disk $disk;
+    public function __construct(protected Disk $disk){}
 
-    public function __construct(Disk $disk)
-    {
-        $this->disk = $disk;
-    }
-
-    /**
-     * List all files in the given directory.
-     *
-     * @param string $directory
-     * @return array
-     * @throws InvalidFileExtension
-     */
     public function listFiles(string $directory = ''): array
     {
-        return $this->disk->files($directory);
+        try {
+            return $this->disk->files($directory);
+        } catch (InvalidFileExtension $e) {
+            // handle the error
+        }
     }
 
-    /**
-     * Get the visibility of files on this disk.
-     *
-     * @return string
-     */
     public function getVisibility(): string
     {
         return $this->disk->getVisibility();
     }
 
-    /**
-     * Get the permissions for the disk.
-     *
-     * @return int
-     */
     public function getPermissions(): int
     {
         return $this->disk->getPermissions();
     }
 
-    /**
-     * Get the URL base for this disk.
-     *
-     * @return string
-     */
     public function getUrl(): string
     {
         return $this->disk->getUrl();
     }
 
-    /**
-     * Check if a file exists.
-     *
-     * @param string $path
-     * @return bool
-     */
     public function fileExists(string $path): bool
     {
         return $this->disk->exists($path);
     }
 
-    /**
-     * Delete a file.
-     *
-     * @param string $path
-     * @return bool
-     */
     public function deleteFile(string $path): bool
     {
         try {
@@ -86,12 +49,6 @@ class FileStorage implements FileStorageHandlerInterface
         }
     }
 
-    /**
-     * Get the contents of a file.
-     *
-     * @param string $path
-     * @return string|null
-     */
     public function getFile(string $path): ?string
     {
         try {
@@ -130,9 +87,6 @@ class FileStorage implements FileStorageHandlerInterface
         ];
     }
 
-    /**
-     * @throws InvalidFileExtension
-     */
     public function validateFile(UploadedFile $file): UploadedFile
     {
         $extension = strtolower($file->getClientOriginalExtension());
@@ -156,9 +110,6 @@ class FileStorage implements FileStorageHandlerInterface
         return uniqid('', true); // Or use a more sophisticated UUID generation method
     }
 
-    /**
-     * Store file content on the disk.
-     */
     private function storeFileContent(string $filePath, string $content): bool
     {
         $fullPath = $this->disk->getRoot() . DIRECTORY_SEPARATOR . $filePath;

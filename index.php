@@ -15,7 +15,9 @@ include 'vendor/autoload.php';
 
 try {
 
-    $gallery = FileGallery::new();
+    $settings = getSettings();
+
+    $gallery = FileGallery::new($settings);
 
     dump($gallery->listFiles());
 

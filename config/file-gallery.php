@@ -58,5 +58,6 @@ return [
 
     'image' => [
         'driver' => FileGallery::$GD,
+        'options' => []
     ],
 ];

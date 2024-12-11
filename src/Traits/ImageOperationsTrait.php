@@ -5,6 +5,7 @@ namespace MBsoft\FileGallery\Traits;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Intervention\Image\Drivers;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\DriverInterface;
 use Intervention\Image\Interfaces\ImageInterface;
 
 trait ImageOperationsTrait
@@ -16,11 +17,10 @@ trait ImageOperationsTrait
     protected ImageManager $imageManager;
 
     /**
-     * @throws BindingResolutionException
      */
-    public function initializeImageManager(): void
+    public function initializeImageManager(string|DriverInterface $driver, mixed ...$options): void
     {
-        $this->imageManager = app()->make(ImageManager::class);
+        $this->imageManager = getImageManager($driver,$options);
     }
 
     public function readImage(string $filePath): ImageInterface
