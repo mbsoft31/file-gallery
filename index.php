@@ -17,7 +17,7 @@ try {
 
     $settings = getSettings();
 
-    $gallery = FileGallery::new($settings);
+    $gallery = new FileGallery($settings);
 
     dump($gallery->listFiles());
 

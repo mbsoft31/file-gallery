@@ -16,13 +16,6 @@ trait ImageOperationsTrait
 
     protected ImageManager $imageManager;
 
-    /**
-     */
-    public function initializeImageManager(string|DriverInterface $driver, mixed ...$options): void
-    {
-        $this->imageManager = getImageManager($driver,$options);
-    }
-
     public function readImage(string $filePath): ImageInterface
     {
         return $this->imageManager->read($filePath);
